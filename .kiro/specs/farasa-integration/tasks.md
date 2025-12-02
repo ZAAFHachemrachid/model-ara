@@ -1,0 +1,131 @@
+# Implementation Plan
+
+- [ ] 1. Set up Farasa dependencies
+  - Add farasapy>=0.0.14 to pyproject.toml dependencies
+  - Verify Java Runtime Environment availability
+  - Test basic Farasa import and initialization
+  - _Requirements: 1.1, 6.3_
+
+- [ ] 2. Implement FarasaSegmentPrinter utility
+  - [ ] 2.1 Create segment printer class
+    - Implement print_segments() to convert segment lists to string format
+    - Implement parse_segments() to parse string back to segment lists
+    - Define SEGMENT_SEPARATOR and WORD_SEPARATOR constants
+    - _Requirements: 1.4_
+  - [ ]* 2.2 Write property test for segment round-trip
+    - **Property 2: Segment round-trip consistency**
+    - **Validates: Requirements 1.4**
+
+- [ ] 3. Implement FarasaExtractor core functionality
+  - [ ] 3.1 Create FarasaExtractor class with initialization
+    - Implement __init__ with enable flags for each Farasa capability
+    - Initialize Farasa segmenter, stemmer, lemmatizer, POS tagger, NER
+    - Implement is_available() to check Farasa installation
+    - _Requirements: 1.1, 6.3, 6.4_
+  - [ ] 3.2 Implement segmentation method
+    - Implement segment() to break Arabic words into morphological components
+    - Handle non-Arabic characters by passing through unchanged
+    - Implement get_segmented_text() for TF-IDF integration
+    - _Requirements: 1.1, 1.2, 1.3_
+  - [ ]* 3.3 Write property test for segmentation
+    - **Property 1: Segmentation produces valid output**
+    - **Validates: Requirements 1.1, 1.3**
+  - [ ] 3.4 Implement stemming method
+    - Implement stem() to extract stems from Arabic text
+    - Handle empty text gracefully
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [ ]* 3.5 Write property test for stemming
+    - **Property 3: Stemming produces output for all words**
+    - **Validates: Requirements 2.1**
+  - [ ] 3.6 Implement lemmatization method
+    - Implement lemmatize() to extract lemmas from Arabic text
+    - Return original word when no lemma is found
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [ ]* 3.7 Write property test for lemmatization
+    - **Property 4: Lemmatization produces output for all words**
+    - **Validates: Requirements 3.1**
+
+- [ ] 4. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 5. Implement POS tagging functionality
+  - [ ] 5.1 Implement POS tagging method
+    - Implement pos_tag() to assign POS tags to each token
+    - Return list of (token, tag) tuples
+    - _Requirements: 4.1_
+  - [ ] 5.2 Implement POS feature extraction
+    - Compute noun, verb, adjective, and other ratios
+    - Normalize counts to produce valid probability distribution
+    - _Requirements: 4.2, 4.3_
+  - [ ]* 5.3 Write property test for POS tagging
+    - **Property 5: POS tagging assigns tags to all tokens**
+    - **Validates: Requirements 4.1**
+  - [ ]* 5.4 Write property test for POS distribution
+    - **Property 6: POS distribution is valid probability distribution**
+    - **Validates: Requirements 4.2, 4.3**
+
+- [ ] 6. Implement NER functionality
+  - [ ] 6.1 Implement NER method
+    - Implement ner() to identify named entities
+    - Classify entities into PERSON, LOCATION, ORGANIZATION categories
+    - _Requirements: 5.1, 5.2_
+  - [ ] 6.2 Implement NER feature extraction
+    - Count entities per category as numerical features
+    - Return zero counts when no entities found
+    - _Requirements: 5.3, 5.4_
+  - [ ]* 6.3 Write property test for NER features
+    - **Property 7: NER features are non-negative integers**
+    - **Validates: Requirements 5.2, 5.3**
+
+- [ ] 7. Implement feature extraction and transform
+  - [ ] 7.1 Implement extract_features method
+    - Combine POS ratios, NER counts, and segment statistics
+    - Return dictionary with all 9 Farasa features
+    - _Requirements: 4.2, 5.3, 6.1_
+  - [ ] 7.2 Implement transform method
+    - Transform list of texts to numpy array
+    - Implement get_feature_names() returning column names
+    - _Requirements: 6.1_
+
+- [ ] 8. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 9. Integrate with FeatureExtractor
+  - [ ] 9.1 Update FeatureExtractor initialization
+    - Add use_farasa and use_segmented_tfidf parameters
+    - Initialize FarasaExtractor when enabled
+    - Handle graceful degradation when Farasa unavailable
+    - _Requirements: 6.2, 6.3, 6.4_
+  - [ ] 9.2 Update transform method
+    - Include Farasa features in combined matrix when enabled
+    - Use segmented text for TF-IDF when configured
+    - Maintain backward compatibility when Farasa disabled
+    - _Requirements: 6.1, 7.1, 7.2, 7.3_
+  - [ ] 9.3 Update feature name retrieval
+    - Include Farasa feature names in get_feature_names()
+    - Maintain consistent column ordering
+    - _Requirements: 6.1_
+  - [ ]* 9.4 Write property test for combined dimensions
+    - **Property 8: Combined feature matrix has correct dimensions**
+    - **Validates: Requirements 6.1**
+  - [ ]* 9.5 Write property test for backward compatibility
+    - **Property 9: Backward compatibility without Farasa**
+    - **Validates: Requirements 6.2**
+  - [ ]* 9.6 Write property test for segmented TF-IDF
+    - **Property 10: Segmented TF-IDF produces different vocabulary**
+    - **Validates: Requirements 7.1, 7.2**
+
+- [ ] 10. Update serialization
+  - [ ] 10.1 Update save and load methods
+    - Include FarasaExtractor state in serialization
+    - Handle loading pipelines with/without Farasa
+    - _Requirements: 6.2_
+
+- [ ] 11. Update main entry point
+  - [ ] 11.1 Update main.py with Farasa integration
+    - Add command-line option to enable/disable Farasa
+    - Display Farasa feature statistics
+    - _Requirements: 6.4_
+
+- [ ] 12. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

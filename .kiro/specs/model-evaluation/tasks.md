@@ -1,0 +1,132 @@
+# Implementation Plan
+
+- [x] 1. Set up project structure for model evaluation
+  - Create src/model_evaluation/ package directory
+  - Create __init__.py with public exports
+  - Add any new dependencies to pyproject.toml (matplotlib, seaborn for visualization)
+  - _Requirements: 2.2, 5.5_
+
+- [x] 2. Implement data models for evaluation results
+  - [x] 2.1 Create evaluation data models
+    - Implement MetricsResult dataclass with accuracy, precision, recall, f1_score, classification_report
+    - Implement ConfusionMatrixData dataclass with matrix, tn, fp, fn, tp
+    - Implement ErrorAnalysis dataclass with fp_count, fn_count, fp_rate, fn_rate, interpretation
+    - Implement FeatureImportance dataclass with model_type, top_fake_features, top_real_features
+    - Implement EvaluationResult dataclass combining all results
+    - Implement EvaluationReport dataclass for formatted output
+    - _Requirements: 1.3, 2.1, 3.1, 4.1, 5.1_
+
+- [x] 3. Implement metrics computation
+  - [x] 3.1 Create MetricsComputer class
+    - Implement compute_all() method using sklearn metrics
+    - Compute accuracy, precision, recall, F1-score for positive class
+    - Generate classification report string with per-class metrics
+    - _Requirements: 1.3, 1.4_
+  - [ ]* 3.2 Write property test for metrics bounds
+    - **Property 2: Metrics bounds**
+    - **Validates: Requirements 1.3**
+
+- [x] 4. Implement confusion matrix computation and visualization
+  - [x] 4.1 Create ConfusionMatrixVisualizer class
+    - Implement compute() method to generate confusion matrix
+    - Extract TP, TN, FP, FN from sklearn confusion_matrix
+    - Return ConfusionMatrixData with all values
+    - _Requirements: 2.1_
+  - [ ]* 4.2 Write property test for confusion matrix sum
+    - **Property 3: Confusion matrix sum equals total samples**
+    - **Validates: Requirements 2.1**
+  - [x] 4.3 Implement confusion matrix visualization
+    - Implement plot() method using seaborn heatmap
+    - Add labeled axes (actual on y-axis, predicted on x-axis)
+    - Implement save() method to export plot to file
+    - _Requirements: 2.2, 2.3, 2.4_
+
+- [x] 5. Implement error analysis
+  - [x] 5.1 Create error analysis functionality
+    - Implement analyze_errors() method
+    - Compute false positive rate: FP / (TN + FP)
+    - Compute false negative rate: FN / (TP + FN)
+    - Generate interpretation text about error criticality for fake news detection
+    - Return ErrorAnalysis dataclass
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+  - [ ]* 5.2 Write property test for error rates bounds
+    - **Property 4: Error rates bounds and computation**
+    - **Validates: Requirements 3.2, 3.3**
+
+- [x] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 7. Implement feature importance extraction
+  - [x] 7.1 Create FeatureImportanceExtractor class
+    - Implement extract() method with model type detection
+    - Implement _extract_linear_coefficients() for LogisticRegression and LinearSVC
+    - Implement _extract_tree_importances() for RandomForest
+    - Sort features by importance and return top N for fake/real classification
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+  - [ ]* 7.2 Write property test for feature coefficients shape
+    - **Property 5: Feature coefficients shape matches feature count**
+    - **Validates: Requirements 4.1**
+  - [ ]* 7.3 Write property test for Random Forest importances sum
+    - **Property 6: Random Forest importances sum to one**
+    - **Validates: Requirements 4.2**
+  - [ ]* 7.4 Write property test for top features sorting
+    - **Property 7: Top features are sorted by importance**
+    - **Validates: Requirements 4.3, 4.4**
+
+- [-] 8. Implement report generation
+  - [-] 8.1 Create report generation functionality
+    - Implement generate_report() method
+    - Format metrics table with accuracy, precision, recall, F1-score
+    - Format confusion matrix breakdown with TP, TN, FP, FN
+    - Format error analysis with FP and FN rates
+    - Format feature importance lists
+    - Return EvaluationReport dataclass
+    - _Requirements: 5.1, 5.2, 5.3, 5.4_
+  - [ ]* 8.2 Write property test for report completeness
+    - **Property 8: Report completeness**
+    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
+
+- [ ] 9. Implement evaluation results serialization
+  - [ ] 9.1 Implement save_results method
+    - Serialize EvaluationResult to disk using joblib
+    - Include model name, timestamp, and all computed metrics
+    - _Requirements: 6.1, 6.3_
+  - [ ] 9.2 Implement load_results class method
+    - Restore EvaluationResult from disk
+    - Validate loaded result structure
+    - _Requirements: 6.2_
+  - [ ]* 9.3 Write property test for serialization round-trip
+    - **Property 9: Evaluation results serialization round-trip**
+    - **Validates: Requirements 6.2, 6.4**
+
+- [ ] 10. Implement ModelEvaluator main class
+  - [ ] 10.1 Create ModelEvaluator class
+    - Initialize with class_names and pos_label configuration
+    - Instantiate all component classes
+    - _Requirements: 1.1, 2.1, 3.1, 4.1_
+  - [ ] 10.2 Implement evaluate() method
+    - Load model and generate predictions on test set
+    - Compute all metrics using MetricsComputer
+    - Compute confusion matrix using ConfusionMatrixVisualizer
+    - Analyze errors
+    - Extract feature importance (if feature_names provided)
+    - Return complete EvaluationResult
+    - _Requirements: 1.1, 1.2, 1.3, 2.1, 3.1, 4.1_
+  - [ ]* 10.3 Write property test for prediction count
+    - **Property 1: Prediction count matches test set size**
+    - **Validates: Requirements 1.2**
+
+- [ ] 11. Integration and main entry point
+  - [ ] 11.1 Update main.py with evaluation workflow
+    - Load trained model from disk
+    - Load test set features and labels
+    - Run ModelEvaluator.evaluate()
+    - Display metrics summary
+    - Plot and save confusion matrix
+    - Display error analysis
+    - Display top feature importances
+    - Save evaluation results to disk
+    - _Requirements: 1.1, 1.2, 1.3, 2.2, 3.1, 4.3, 5.5, 6.1_
+
+- [ ] 12. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

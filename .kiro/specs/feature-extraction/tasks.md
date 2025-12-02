@@ -1,0 +1,131 @@
+# Implementation Plan
+
+- [x] 1. Set up project dependencies and structure
+  - Add required dependencies to pyproject.toml: scikit-learn, pandas, numpy, textblob, scipy, joblib, hypothesis
+  - Create src/feature_extraction/ package directory structure
+  - Create __init__.py with public exports
+  - _Requirements: 1.1, 2.1, 3.1_
+
+- [x] 2. Implement TfidfExtractor component
+  - [x] 2.1 Create TfidfExtractor class with configuration
+    - Implement __init__ with max_features, ngram_range, min_df, max_df parameters
+    - Initialize sklearn TfidfVectorizer with configured parameters
+    - _Requirements: 1.1, 1.2, 1.3, 1.4_
+  - [x] 2.2 Implement fit and transform methods
+    - Implement fit() to train vectorizer on texts
+    - Implement transform() to convert texts to sparse matrix
+    - Implement get_feature_names() to return vocabulary
+    - _Requirements: 1.1, 1.5_
+  - [ ]* 2.3 Write property test for TF-IDF output shape
+    - **Property 1: TF-IDF output shape consistency**
+    - **Validates: Requirements 1.1, 1.2**
+  - [ ]* 2.4 Write property test for vocabulary persistence
+    - **Property 2: TF-IDF vocabulary persistence**
+    - **Validates: Requirements 1.5**
+
+- [x] 3. Implement LinguisticExtractor component
+  - [x] 3.1 Create LinguisticExtractor class
+    - Define SENSATIONALISM_KEYWORDS constant with English and Arabic keywords
+    - Implement extract() for single text processing
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
+  - [x] 3.2 Implement linguistic feature calculations
+    - Compute text_length, word_count
+    - Compute uppercase_ratio with empty text handling
+    - Count exclamation_count, question_count
+    - Compute punctuation_ratio with empty text handling
+    - Count fake_keyword_count using case-insensitive matching
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
+  - [x] 3.3 Implement transform method for batch processing
+    - Transform list of texts to numpy array
+    - Implement get_feature_names() returning column names
+    - _Requirements: 2.1_
+  - [ ]* 3.4 Write property test for text metrics
+    - **Property 3: Linguistic feature text metrics**
+    - **Validates: Requirements 2.1, 2.2**
+  - [ ]* 3.5 Write property test for ratio bounds
+    - **Property 4: Linguistic feature ratio bounds**
+    - **Validates: Requirements 2.3, 2.5**
+  - [ ]* 3.6 Write property test for punctuation counts
+    - **Property 5: Linguistic feature punctuation counts**
+    - **Validates: Requirements 2.4**
+
+- [x] 4. Implement SentimentExtractor component
+  - [x] 4.1 Create SentimentExtractor class
+    - Implement extract() using TextBlob for polarity and subjectivity
+    - Implement sentiment classification logic (positive/negative/neutral)
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [x] 4.2 Implement transform method for batch processing
+    - Transform list of texts to numpy array with polarity and subjectivity columns
+    - Implement get_feature_names() returning column names
+    - _Requirements: 3.1, 3.2_
+  - [ ]* 4.3 Write property test for polarity bounds
+    - **Property 6: Sentiment polarity bounds**
+    - **Validates: Requirements 3.1**
+  - [ ]* 4.4 Write property test for subjectivity bounds
+    - **Property 7: Sentiment subjectivity bounds**
+    - **Validates: Requirements 3.2**
+  - [ ]* 4.5 Write property test for sentiment classification
+    - **Property 8: Sentiment classification consistency**
+    - **Validates: Requirements 3.3, 3.4, 3.5**
+
+- [x] 5. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. Implement FeatureExtractor main class
+  - [x] 6.1 Create FeatureExtractor class with component initialization
+    - Initialize TfidfExtractor, LinguisticExtractor, SentimentExtractor
+    - Store configuration parameters
+    - _Requirements: 1.1, 2.1, 3.1, 4.1_
+  - [x] 6.2 Implement fit and transform methods
+    - Implement fit() to train TF-IDF extractor
+    - Implement transform() to extract and combine all features
+    - Implement fit_transform() convenience method
+    - Use scipy.sparse.hstack for memory-efficient combination
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [x] 6.3 Implement feature name retrieval
+    - Implement get_feature_names() combining all component feature names
+    - Maintain consistent column ordering
+    - _Requirements: 4.3_
+  - [ ]* 6.4 Write property test for combined matrix dimensions
+    - **Property 9: Combined feature matrix dimensions**
+    - **Validates: Requirements 4.1**
+
+- [x] 7. Implement pipeline serialization
+  - [x] 7.1 Implement save and load methods
+    - Implement save() using joblib to serialize fitted components
+    - Implement load() class method to restore pipeline state
+    - Handle file errors gracefully
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [ ]* 7.2 Write property test for serialization round-trip
+    - **Property 10: Pipeline serialization round-trip**
+    - **Validates: Requirements 5.2, 5.4**
+
+- [x] 8. Implement feature analysis utilities
+  - [x] 8.1 Implement analyze_features method
+    - Compute summary statistics grouped by label
+    - Return dict with mean, std, min, max per feature per label
+    - _Requirements: 6.1_
+  - [x] 8.2 Implement get_top_tfidf_features method
+    - Return top N features sorted by total weight descending
+    - _Requirements: 6.2_
+  - [ ]* 8.3 Write property test for top features ordering
+    - **Property 11: Top TF-IDF features ordering**
+    - **Validates: Requirements 6.2**
+
+- [x] 9. Implement visualization utilities
+  - [x] 9.1 Create visualization module
+    - Implement plot_feature_distributions() for comparing fake vs real
+    - Generate histograms for linguistic and sentiment features
+    - _Requirements: 6.3_
+
+- [x] 10. Integration and main entry point
+  - [x] 10.1 Update main.py with feature extraction workflow
+    - Load dataset from CSV files
+    - Create and fit FeatureExtractor on training data
+    - Transform train/validation/test sets
+    - Display feature analysis and top TF-IDF features
+    - Save fitted pipeline for later use
+    - _Requirements: 1.1, 4.1, 5.1, 6.1, 6.2_
+
+- [x] 11. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
