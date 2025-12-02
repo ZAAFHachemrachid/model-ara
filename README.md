@@ -1,6 +1,6 @@
 # model-ara: Arabic Fake News Classification
 
-A machine learning system for detecting fake news in Arabic language content. Achieves **99.92% F1-score** on validation data using advanced feature engineering and ensemble methods.
+A machine learning system for detecting fake news in Arabic language content. Achieves **99.71% F1-score** on validation data using advanced feature engineering and ensemble methods.
 
 ## Quick Start
 
@@ -21,7 +21,7 @@ streamlit run app.py
 
 ### Key Features
 
-- **High Accuracy:** 99.67% test accuracy with robust generalization
+- **High Accuracy:** 99.71% test accuracy with robust generalization
 - **Comprehensive Features:** 5,000+ engineered features from TF-IDF, linguistic analysis, and sentiment
 - **Arabic NLP Support:** Optional Farasa integration for morphological analysis
 - **Interpretability:** Feature importance analysis for transparency
