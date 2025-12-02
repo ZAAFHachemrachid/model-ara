@@ -8,3 +8,13 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Large files (>90 MB)
+*.joblib
+*.pkl
+*.pickle
+*.h5
+*.pt
+*.pth
+*.onnx
+*.zip

@@ -23,6 +23,8 @@ from src.model_evaluation.confusion_matrix import ConfusionMatrixVisualizer
 from src.model_evaluation.error_analyzer import ErrorAnalyzer
 from src.model_evaluation.feature_importance import FeatureImportanceExtractor
 from src.model_evaluation.report_generator import ReportGenerator
+from src.model_evaluation.result_serializer import ResultSerializer
+from src.model_evaluation.model_evaluator import ModelEvaluator
 
 __all__ = [
     "MetricsResult",
@@ -36,4 +38,6 @@ __all__ = [
     "ErrorAnalyzer",
     "FeatureImportanceExtractor",
     "ReportGenerator",
+    "ResultSerializer",
+    "ModelEvaluator",
 ]

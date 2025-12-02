@@ -1,0 +1,12 @@
+{
+  "model_type": "Random Forest",
+  "timestamp": "20251202_192658",
+  "created_at": "2025-12-02T19:26:58.596072",
+  "params": {
+    "n_estimators": 340
+  },
+  "best_f1": 0.9970833292823962,
+  "best_accuracy": 0.9970833333333333,
+  "final_f1": 0.9970833257378143,
+  "final_accuracy": 0.9970833333333333
+}

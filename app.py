@@ -13,12 +13,38 @@ import os
 
 from src.feature_extraction import FeatureExtractor
 from src.model_training import load_model
+import json
+
+
+MODELS_DIR = "saved_models"
+
+
+def list_saved_models():
+    """List all saved models with their metadata."""
+    models = []
+    
+    if not os.path.exists(MODELS_DIR):
+        return models
+    
+    for folder in sorted(os.listdir(MODELS_DIR), reverse=True):
+        folder_path = os.path.join(MODELS_DIR, folder)
+        if os.path.isdir(folder_path):
+            metadata_path = os.path.join(folder_path, "metadata.json")
+            model_path = os.path.join(folder_path, "model.joblib")
+            if os.path.exists(metadata_path) and os.path.exists(model_path):
+                with open(metadata_path, "r") as f:
+                    metadata = json.load(f)
+                metadata["folder"] = folder
+                metadata["model_path"] = model_path
+                models.append(metadata)
+    
+    return models
 
 
 # Page configuration
 st.set_page_config(
     page_title="Arabic Fake News Detector",
-    page_icon="🔍",
+    page_icon="�",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -57,9 +83,8 @@ st.markdown("""
 
 
 @st.cache_resource
-def load_models():
+def load_models(model_path: str = "best_model.joblib"):
     """Load the trained model and feature extractor."""
-    model_path = "best_model.joblib"
     extractor_path = "feature_extractor.joblib"
     
     if not os.path.exists(model_path) or not os.path.exists(extractor_path):
@@ -107,7 +132,7 @@ def predict_text(text: str, model, extractor) -> dict:
     
     return {
         "prediction": int(prediction),
-        "label": "Real News ✓" if prediction == 1 else "Fake News ✗",
+        "label": "Real News" if prediction == 1 else "Fake News",
         "confidence": confidence,
         "proba_real": proba_real,
         "proba_fake": proba_fake,
@@ -129,28 +154,46 @@ def extract_feature_details(text: str, extractor) -> dict:
 
 
 # Sidebar
-st.sidebar.title("🔍 Navigation")
+st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Select Page",
-    ["🏠 Home - Classify Text", "📊 Dataset Statistics", "📈 Model Performance", "ℹ️ About"]
+    ["Home - Classify Text", "Dataset Statistics", "Model Performance", "About"]
 )
 
-# Load models
-model, extractor = load_models()
+# Model selector in sidebar
+st.sidebar.markdown("---")
+st.sidebar.subheader("Model Selection")
 
-if page == "🏠 Home - Classify Text":
-    st.title("🔍 Arabic Fake News Detector")
+saved_models = list_saved_models()
+model_options = {"Default (best_model.joblib)": "best_model.joblib"}
+
+for m in saved_models:
+    label = f"{m.get('model_type', 'Unknown')} - F1: {m.get('best_f1', 0):.4f} ({m.get('folder', '')[:15]}...)"
+    model_options[label] = m.get("model_path", "")
+
+selected_model_label = st.sidebar.selectbox(
+    "Select Model",
+    options=list(model_options.keys()),
+    help="Choose a model from saved models or use the default"
+)
+selected_model_path = model_options[selected_model_label]
+
+# Load models
+model, extractor = load_models(selected_model_path)
+
+if page == "Home - Classify Text":
+    st.title("Arabic Fake News Detector")
     st.markdown("Classify Arabic news articles as **Real** or **Fake** using machine learning.")
     
     if model is None or extractor is None:
-        st.error("⚠️ Model not found! Please run `python main.py` first to train the model.")
+        st.error("Model not found! Please run `python main.py` first to train the model.")
         st.info("Run the following command in your terminal:")
         st.code("python main.py", language="bash")
     else:
-        st.success(f"✓ Model loaded: **{model.name}** (F1-Score: {model.val_f1_score:.4f})")
+        st.success(f"Model loaded: **{model.name}** (F1-Score: {model.val_f1_score:.4f})")
         
         # Input section
-        st.subheader("📝 Enter Arabic Text")
+        st.subheader("Enter Arabic Text")
         
         col1, col2 = st.columns([3, 1])
         
@@ -177,7 +220,7 @@ if page == "🏠 Home - Classify Text":
             st.rerun()
         
         # Classify button
-        if st.button("🔍 Classify", type="primary", use_container_width=True):
+        if st.button("Classify", type="primary", use_container_width=True):
             if input_text.strip():
                 with st.spinner("Analyzing text..."):
                     result = predict_text(input_text, model, extractor)
@@ -185,7 +228,7 @@ if page == "🏠 Home - Classify Text":
                 
                 # Display result
                 st.markdown("---")
-                st.subheader("📋 Classification Result")
+                st.subheader("Classification Result")
                 
                 col1, col2, col3 = st.columns(3)
                 
@@ -193,13 +236,13 @@ if page == "🏠 Home - Classify Text":
                     if result["prediction"] == 1:
                         st.markdown(f"""
                         <div class="result-real">
-                            <h2>✅ {result['label']}</h2>
+                            <h2>{result['label']}</h2>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
                         <div class="result-fake">
-                            <h2>❌ {result['label']}</h2>
+                            <h2>{result['label']}</h2>
                         </div>
                         """, unsafe_allow_html=True)
                 
@@ -249,11 +292,11 @@ if page == "🏠 Home - Classify Text":
                         sent_df.columns = ["Value"]
                         st.dataframe(sent_df, use_container_width=True)
             else:
-                st.warning("⚠️ Please enter some text to classify.")
+                st.warning("Please enter some text to classify.")
 
 
-elif page == "📊 Dataset Statistics":
-    st.title("📊 Dataset Statistics")
+elif page == "Dataset Statistics":
+    st.title("Dataset Statistics")
     
     stats = load_dataset_stats()
     
@@ -331,13 +374,13 @@ elif page == "📊 Dataset Statistics":
     else:
         st.warning("Dataset not found. Please ensure CSV files are in the `dataset/` folder.")
 
-elif page == "📈 Model Performance":
-    st.title("📈 Model Performance")
+elif page == "Model Performance":
+    st.title("Model Performance")
     
     if model is None:
-        st.error("⚠️ Model not found! Please run `python main.py` first to train the model.")
+        st.error("Model not found! Please run `python main.py` first to train the model.")
     else:
-        st.success(f"✓ Current Model: **{model.name}**")
+        st.success(f"Current Model: **{model.name}**")
         
         # Model metrics
         col1, col2, col3 = st.columns(3)
@@ -354,13 +397,13 @@ elif page == "📈 Model Performance":
         st.markdown("---")
         
         # Classification report
-        st.subheader("📋 Classification Report")
+        st.subheader("Classification Report")
         st.text(model.classification_report)
         
         # Feature extractor info
         if extractor:
             st.markdown("---")
-            st.subheader("🔧 Feature Extractor Configuration")
+            st.subheader("Feature Extractor Configuration")
             
             col1, col2 = st.columns(2)
             
@@ -391,7 +434,7 @@ elif page == "ℹ️ About":
     
     This application uses machine learning to classify Arabic news articles as **Real** or **Fake**.
     
-    ### 🔧 Technical Details
+    ### Technical Details
     
     **Feature Extraction:**
     - TF-IDF vectorization with n-grams (1-2)
@@ -414,7 +457,7 @@ elif page == "ℹ️ About":
     2. **Dataset Statistics:** View information about the training data
     3. **Model Performance:** Check the model's accuracy and metrics
     
-    ### 🚀 Getting Started
+    ### Getting Started
     
     If the model is not loaded, run the training script first:
     

@@ -73,8 +73,8 @@
     - **Property 7: Top features are sorted by importance**
     - **Validates: Requirements 4.3, 4.4**
 
-- [-] 8. Implement report generation
-  - [-] 8.1 Create report generation functionality
+- [x] 8. Implement report generation
+  - [x] 8.1 Create report generation functionality
     - Implement generate_report() method
     - Format metrics table with accuracy, precision, recall, F1-score
     - Format confusion matrix breakdown with TP, TN, FP, FN
@@ -86,12 +86,12 @@
     - **Property 8: Report completeness**
     - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
 
-- [ ] 9. Implement evaluation results serialization
-  - [ ] 9.1 Implement save_results method
+- [x] 9. Implement evaluation results serialization
+  - [x] 9.1 Implement save_results method
     - Serialize EvaluationResult to disk using joblib
     - Include model name, timestamp, and all computed metrics
     - _Requirements: 6.1, 6.3_
-  - [ ] 9.2 Implement load_results class method
+  - [x] 9.2 Implement load_results class method
     - Restore EvaluationResult from disk
     - Validate loaded result structure
     - _Requirements: 6.2_
@@ -99,12 +99,12 @@
     - **Property 9: Evaluation results serialization round-trip**
     - **Validates: Requirements 6.2, 6.4**
 
-- [ ] 10. Implement ModelEvaluator main class
-  - [ ] 10.1 Create ModelEvaluator class
+- [x] 10. Implement ModelEvaluator main class
+  - [x] 10.1 Create ModelEvaluator class
     - Initialize with class_names and pos_label configuration
     - Instantiate all component classes
     - _Requirements: 1.1, 2.1, 3.1, 4.1_
-  - [ ] 10.2 Implement evaluate() method
+  - [x] 10.2 Implement evaluate() method
     - Load model and generate predictions on test set
     - Compute all metrics using MetricsComputer
     - Compute confusion matrix using ConfusionMatrixVisualizer
@@ -116,8 +116,8 @@
     - **Property 1: Prediction count matches test set size**
     - **Validates: Requirements 1.2**
 
-- [ ] 11. Integration and main entry point
-  - [ ] 11.1 Update main.py with evaluation workflow
+- [x] 11. Integration and main entry point
+  - [x] 11.1 Update main.py with evaluation workflow
     - Load trained model from disk
     - Load test set features and labels
     - Run ModelEvaluator.evaluate()

@@ -1,0 +1,13 @@
+{
+  "model_type": "Logistic Regression",
+  "timestamp": "20251202_175128",
+  "created_at": "2025-12-02T17:51:28.749644",
+  "params": {
+    "C": 1.0,
+    "max_iter": 1000
+  },
+  "best_f1": 0.9831242990391342,
+  "best_accuracy": 0.983125,
+  "final_f1": 0.9822908327012468,
+  "final_accuracy": 0.9822916666666667
+}
